@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字符串格式化工具</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #007bff;
+        }
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">Java类字符串格式化工具</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">主页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="changelog.html">更新日志</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">联系我们</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <textarea id="input" class="form-control" rows="10" placeholder="请输入要格式化的字符串"></textarea>
+            </div>
+            <div class="col-md-6 mb-3">
+                <textarea id="output" class="form-control" rows="10" readonly></textarea>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-4 mb-2">
+                <button id="formatBtn" class="btn btn-primary w-100">格式化</button>
+            </div>
+            <div class="col-md-4 mb-2">
+                <button id="copyBtn" class="btn btn-primary w-100">复制结果</button>
+            </div>
+            <div class="col-md-4 mb-2">
+                <button id="resetBtn" class="btn btn-primary w-100">重置</button>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-12">
+                <h4>历史记录</h4>
+                <ul id="historyList" class="list-group">
+                    <!-- 历史记录将在这里动态添加 -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 初始化历史记录数组
+        let formatHistory = JSON.parse(localStorage.getItem('formatHistory')) || [];
+
+        // 页面加载时恢复保存的内容和历史记录
+        window.addEventListener('load', function() {
+            const savedInput = localStorage.getItem('formattedInput');
+            const savedOutput = localStorage.getItem('formattedOutput');
+            if (savedInput) {
+                document.getElementById('input').value = savedInput;
+            }
+            if (savedOutput) {
+                document.getElementById('output').value = savedOutput;
+            }
+
+            // 显示历史记录
+            updateHistoryDisplay();
+        });
+
+        document.getElementById('formatBtn').addEventListener('click', function() {
+            const input = document.getElementById('input').value;
+            const formatted = formatString(input);
+            document.getElementById('output').value = formatted;
+            
+            // 保存到本地存储
+            localStorage.setItem('formattedInput', input);
+            localStorage.setItem('formattedOutput', formatted);
+
+            // 添加到历史记录
+            addToHistory(input, formatted);
+        });
+
+        function formatString(input) {
+            let charArray = input.split('');
+            let level = 0;
+            let result = [];
+            let newLine = true;
+            let inQuotes = false; // 用于跟踪是否在引号内
+
+            function appendTab(level) {
+                return '\t'.repeat(Math.max(0, level));
+            }
+
+            function isRightBracket(c) {
+                return c === ')' || c === ']' || c === '}';
+            }
+
+            function isLeftBracket(c) {
+                return c === '(' || c === '[' || c === '{';
+            }
+
+            function isNotMatchingBracket(leftBracket, rightBracket) {
+                return !isMatchingBracket(leftBracket, rightBracket);
+            }
+
+            function isMatchingBracket(leftBracket, rightBracket) {
+                return (leftBracket === '(' && rightBracket === ')')
+                    || (leftBracket === '[' && rightBracket === ']')
+                    || (leftBracket === '{' && rightBracket === '}');
+            }
+
+            for (let i = 0; i < charArray.length; i++) {
+                if (newLine) {
+                    result.push(appendTab(level));
+                    newLine = false;
+                }
+
+                // 检查是否在引号内
+                if (charArray[i] === '"' || charArray[i] === "'") {
+                    inQuotes = !inQuotes;
+                }
+
+                // 处理空格
+                if (charArray[i] === ' ' && !inQuotes) {
+                    continue;
+                }
+
+                if (isLeftBracket(charArray[i])
+                    && i + 1 < charArray.length
+                    && isNotMatchingBracket(charArray[i], charArray[i + 1])) {
+                    result.push(charArray[i] + "\n");
+                    level++;
+                    newLine = true;
+                } else if (charArray[i] === ',') {
+                    result.push(charArray[i] + "\n");
+                    newLine = true;
+                } else if (isRightBracket(charArray[i]) && i - 1 >= 0 && isNotMatchingBracket(charArray[i - 1], charArray[i])) {
+                    level--;
+                    result.push("\n" + appendTab(level) + charArray[i]);
+                } else {
+                    result.push(charArray[i]);
+                }
+            }
+
+            return result.join('');
+        }
+
+        document.getElementById('copyBtn').addEventListener('click', function() {
+            const output = document.getElementById('output');
+            output.select();
+            document.execCommand('copy');
+            
+            // 创建一个提示元素
+            const alert = document.createElement('div');
+            alert.textContent = '已复制到剪贴板';
+            alert.style.position = 'fixed';
+            alert.style.top = '20px';
+            alert.style.left = '50%';
+            alert.style.transform = 'translateX(-50%)';
+            alert.style.padding = '10px 20px';
+            alert.style.backgroundColor = '#90EE90'; // 改为浅绿色
+            alert.style.color = 'black'; // 改为黑色文字以增加对比度
+            alert.style.borderRadius = '5px';
+            alert.style.zIndex = '1000';
+            
+            // 将提示元素添加到页面
+            document.body.appendChild(alert);
+            
+            // 1秒后移除提示元素
+            setTimeout(() => {
+                document.body.removeChild(alert);
+            }, 1000); // 改为1000毫秒（1秒）
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            document.getElementById('input').value = '';
+            document.getElementById('output').value = '';
+            // 清除本地存储中的输入和输出
+            localStorage.removeItem('formattedInput');
+            localStorage.removeItem('formattedOutput');
+            // 不再清除历史记录
+        });
+
+        // 在输入框内容变化时保存
+        document.getElementById('input').addEventListener('input', function() {
+            localStorage.setItem('formattedInput', this.value);
+        });
+
+        function addToHistory(input, output) {
+            // 只保存输出结果到历史记录
+            formatHistory.unshift({ output: output, timestamp: new Date().toLocaleString() });
+            
+            // 保持历史记录最多20条
+            if (formatHistory.length > 20) {
+                formatHistory.pop();
+            }
+
+            // 更新本地存储
+            localStorage.setItem('formatHistory', JSON.stringify(formatHistory));
+
+            // 更新显示
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = ''; // 清空现有内容
+
+            formatHistory.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.innerHTML = `
+                    <strong>输出 (${item.timestamp}):</strong> 
+                    <pre>${item.output}</pre>
+                `;
+                li.style.cursor = 'pointer'; // 添加鼠标悬停效果
+                li.title = '点击复制到剪贴板'; // 添加提示文字
+                li.addEventListener('click', function() {
+                    copyToClipboard(item.output);
+                    showCopyAlert();
+                });
+                historyList.appendChild(li);
+            });
+        }
+
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+
+        function showCopyAlert() {
+            const alert = document.createElement('div');
+            alert.textContent = '已复制到剪贴板';
+            alert.style.position = 'fixed';
+            alert.style.top = '20px';
+            alert.style.left = '50%';
+            alert.style.transform = 'translateX(-50%)';
+            alert.style.padding = '10px 20px';
+            alert.style.backgroundColor = '#90EE90';
+            alert.style.color = 'black';
+            alert.style.borderRadius = '5px';
+            alert.style.zIndex = '1000';
+            
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                document.body.removeChild(alert);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
