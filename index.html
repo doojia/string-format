@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>字符串格式化工具</title>
+    <title>主页 - 字符串格式化工具</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -23,24 +23,89 @@
             background-color: #0056b3;
             border-color: #0056b3;
         }
+        #input {
+            min-height: 300px; /* 增加输入框的高度 */
+        }
+        .history-item {
+            position: relative;
+            margin-bottom: 15px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        }
+        .history-item pre {
+            margin-bottom: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .copy-btn:hover {
+            background-color: #0056b3;
+        }
+        .float-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .float-button {
+            display: block;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            line-height: 50px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .float-button:hover {
+            background-color: #0056b3;
+        }
+        .history-item.highlighted {
+            outline: 3px solid #FF4500;
+            transition: outline 0.3s ease-in-out;
+        }
+        .navbar .container-fluid {
+            max-width: 1200px; /* 或者您想要的任何宽度 */
+            margin: 0 auto;
+        }
+        .content-container {
+            max-width: 1200px; /* 与导航栏容器相同的宽度 */
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg">
-        <div class="container">
+        <div class="container-fluid">
             <a class="navbar-brand" href="#">字符串格式化工具</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">主页</a>
+                    <li class="nav-item mx-3">
+                        <a class="nav-link active" href="#">主页</a> 
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item mx-3">
                         <a class="nav-link" href="changelog.html">更新日志</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item mx-3">
                         <a class="nav-link" href="contact.html">联系我们</a>
                     </li>
                 </ul>
@@ -48,34 +113,33 @@
         </div>
     </nav>
 
-    <div class="container mt-5">
+    <div class="container-fluid mt-5 content-container">
         <div class="row">
-            <div class="col-md-6 mb-3">
-                <textarea id="input" class="form-control" rows="10" placeholder="请输入要格式化的字符串"></textarea>
-            </div>
-            <div class="col-md-6 mb-3">
-                <textarea id="output" class="form-control" rows="10" readonly></textarea>
+            <div class="col-md-10 mb-3">
+                <textarea id="input" class="form-control" rows="15" placeholder="请输入要格式化的字符串"></textarea>
             </div>
         </div>
-        <div class="row mt-3">
-            <div class="col-md-4 mb-2">
+        <div class="row mt-3"> <!-- 添加 justify-content-center 类 -->
+            <div class="col-md-5 mb-2">
                 <button id="formatBtn" class="btn btn-primary w-100">格式化</button>
             </div>
-            <div class="col-md-4 mb-2">
-                <button id="copyBtn" class="btn btn-primary w-100">复制结果</button>
-            </div>
-            <div class="col-md-4 mb-2">
+            <div class="col-md-5 mb-2">
                 <button id="resetBtn" class="btn btn-primary w-100">重置</button>
             </div>
         </div>
-        <div class="row mt-4">
-            <div class="col-12">
+        <div class="row mt-4"> <!-- 添加 justify-content-center 类 -->
+            <div class="col-md-10">
                 <h4>历史记录</h4>
-                <ul id="historyList" class="list-group">
+                <div id="historyList" class="mt-3">
                     <!-- 历史记录将在这里动态添加 -->
-                </ul>
+                </div>
             </div>
         </div>
+    </div>
+
+    <div class="float-buttons">
+        <div id="backToTop" class="float-button" title="返回顶部">↑</div>
+        <div id="nextHistory" class="float-button" title="下一条历史记录">↓</div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
@@ -86,13 +150,12 @@
         // 页面加载时恢复保存的内容和历史记录
         window.addEventListener('load', function() {
             const savedInput = localStorage.getItem('formattedInput');
-            const savedOutput = localStorage.getItem('formattedOutput');
             if (savedInput) {
                 document.getElementById('input').value = savedInput;
             }
-            if (savedOutput) {
-                document.getElementById('output').value = savedOutput;
-            }
+
+            // 从本地存储中读取历史记录
+            formatHistory = JSON.parse(localStorage.getItem('formatHistory')) || [];
 
             // 显示历史记录
             updateHistoryDisplay();
@@ -101,14 +164,15 @@
         document.getElementById('formatBtn').addEventListener('click', function() {
             const input = document.getElementById('input').value;
             const formatted = formatString(input);
-            document.getElementById('output').value = formatted;
             
             // 保存到本地存储
             localStorage.setItem('formattedInput', input);
-            localStorage.setItem('formattedOutput', formatted);
 
             // 添加到历史记录
             addToHistory(input, formatted);
+
+            // 更新历史记录显示
+            updateHistoryDisplay();
         });
 
         function formatString(input) {
@@ -176,33 +240,6 @@
             return result.join('');
         }
 
-        document.getElementById('copyBtn').addEventListener('click', function() {
-            const output = document.getElementById('output');
-            output.select();
-            document.execCommand('copy');
-            
-            // 创建一个提示元素
-            const alert = document.createElement('div');
-            alert.textContent = '已复制到剪贴板';
-            alert.style.position = 'fixed';
-            alert.style.top = '20px';
-            alert.style.left = '50%';
-            alert.style.transform = 'translateX(-50%)';
-            alert.style.padding = '10px 20px';
-            alert.style.backgroundColor = '#90EE90'; // 改为浅绿色
-            alert.style.color = 'black'; // 改为黑色文字以增加对比度
-            alert.style.borderRadius = '5px';
-            alert.style.zIndex = '1000';
-            
-            // 将提示元素添加到页面
-            document.body.appendChild(alert);
-            
-            // 1秒后移除提示元素
-            setTimeout(() => {
-                document.body.removeChild(alert);
-            }, 1000); // 改为1000毫秒（1秒）
-        });
-
         document.getElementById('resetBtn').addEventListener('click', function() {
             document.getElementById('input').value = '';
             document.getElementById('output').value = '';
@@ -218,40 +255,76 @@
         });
 
         function addToHistory(input, output) {
-            // 只保存输出结果到历史记录
-            formatHistory.unshift({ output: output, timestamp: new Date().toLocaleString() });
-            
-            // 保持历史记录最多20条
-            if (formatHistory.length > 20) {
+            const timestamp = new Date().toLocaleString();
+            formatHistory.unshift({
+                input: input,
+                output: output,
+                timestamp: timestamp
+            });
+
+            // 限制历史记录数量,例如只保留最近的10条
+            if (formatHistory.length > 10) {
                 formatHistory.pop();
             }
 
-            // 更新本地存储
+            // 保存历史记录到本地存储
             localStorage.setItem('formatHistory', JSON.stringify(formatHistory));
-
-            // 更新显示
-            updateHistoryDisplay();
         }
+
+        let currentHistoryIndex = -1;
+        document.getElementById('nextHistory').addEventListener('click', function() {
+            if (formatHistory.length > 0) {
+                // 移除之前的高亮
+                const previousHighlight = document.querySelector('.history-item.highlighted');
+                if (previousHighlight) {
+                    previousHighlight.classList.remove('highlighted');
+                }
+
+                currentHistoryIndex = (currentHistoryIndex + 1) % formatHistory.length;
+                const historyItems = document.querySelectorAll('.history-item');
+                const targetItem = historyItems[currentHistoryIndex];
+
+                if (targetItem) {
+                    // 添加高亮
+                    targetItem.classList.add('highlighted');
+
+                    // 滚动到目标元素
+                    targetItem.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+            } else {
+                showHistoryAlert('没有历史记录');
+            }
+        });
 
         function updateHistoryDisplay() {
             const historyList = document.getElementById('historyList');
             historyList.innerHTML = ''; // 清空现有内容
 
             formatHistory.forEach((item, index) => {
-                const li = document.createElement('li');
-                li.className = 'list-group-item';
-                li.innerHTML = `
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
                     <strong>输出 (${item.timestamp}):</strong> 
                     <pre>${item.output}</pre>
+                    <button class="copy-btn">复制</button>
                 `;
-                li.style.cursor = 'pointer'; // 添加鼠标悬停效果
-                li.title = '点击复制到剪贴板'; // 添加提示文字
-                li.addEventListener('click', function() {
+                
+                // 添加复制按钮的点击事件
+                const copyBtn = historyItem.querySelector('.copy-btn');
+                copyBtn.addEventListener('click', function(e) {
+                    e.stopPropagation(); // 防止事件冒泡
                     copyToClipboard(item.output);
                     showCopyAlert();
                 });
-                historyList.appendChild(li);
+
+                historyList.appendChild(historyItem);
             });
+
+            // 重置当前历史索引
+            currentHistoryIndex = -1;
         }
 
         function copyToClipboard(text) {
@@ -266,6 +339,31 @@
         function showCopyAlert() {
             const alert = document.createElement('div');
             alert.textContent = '已复制到剪贴板';
+            alert.style.position = 'fixed';
+            alert.style.top = '20px';
+            alert.style.left = '50%';
+            alert.style.transform = 'translateX(-50%)';
+            alert.style.padding = '10px 20px';
+            alert.style.backgroundColor = '#90EE90';
+            alert.style.color = 'black';
+            alert.style.borderRadius = '5px';
+            alert.style.zIndex = '1000';
+            
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                document.body.removeChild(alert);
+            }, 1000);
+        }
+
+        // 添加返回顶部功能
+        document.getElementById('backToTop').addEventListener('click', function() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+
+        function showHistoryAlert(message) {
+            const alert = document.createElement('div');
+            alert.textContent = message;
             alert.style.position = 'fixed';
             alert.style.top = '20px';
             alert.style.left = '50%';

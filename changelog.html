@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>更新日志 - Java类字符串格式化工具</title>
+    <title>更新日志 - 字符串格式化工具</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -15,24 +15,40 @@
         .navbar-brand, .nav-link {
             color: white !important;
         }
+        .list-group-item {
+            margin-bottom: 20px; /* 增加条目之间的间隔 */
+            border: 1px solid #dee2e6; /* 添加边框 */
+            border-radius: 0.25rem; /* 圆角边框 */
+        }
+        .list-group-item:last-child {
+            margin-bottom: 0; /* 最后一个条目不需要底部间隔 */
+        }
+        .navbar .container-fluid {
+            max-width: 1200px; /* 或者您想要的任何宽度 */
+            margin: 0 auto;
+        }
+        .content-container {
+            max-width: 1200px; /* 与导航栏容器相同的宽度 */
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">Java类字符串格式化工具</a>
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">字符串格式化工具</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
+                    <li class="nav-item mx-3">
                         <a class="nav-link" href="index.html">主页</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item mx-3">
                         <a class="nav-link active" href="changelog.html">更新日志</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item mx-3">
                         <a class="nav-link" href="contact.html">联系我们</a>
                     </li>
                 </ul>
@@ -40,17 +56,35 @@
         </div>
     </nav>
 
-    <div class="container mt-5">
-        <h2 class="mb-4">更新日志</h2>
-        <ul class="list-group">
+    <div class="container-fluid mt-5 content-container">
+        <h1>更新日志</h1>
+        <ul class="list-group mt-4">
             <li class="list-group-item">
-                <h5 class="mb-1">版本 1.0.0 (2024-09-23)</h5>
-                <p class="mb-1">- 初始版本发布</p>
-                <p class="mb-1">- 实现基本的Java类字符串格式化功能</p>
-                <p class="mb-1">- 添加复制和重置功能</p>
-                <p class="mb-1">- 引入历史记录功能，最多保存20条记录</p>
-                <p class="mb-1">- 引入历史记录复制功能，点击历史记录时，将该记录的格式化内容复制到剪贴板</p>
-                <p class="mb-1">- 添加格式化空格功能</p>
+                <h5>2024年10月1日 - 版本 1.2.0</h5>
+                <ul>
+                    <li>新增固定悬浮按钮，实现了快速返回页面顶部和浏览历史记录的功能</li>
+                    <li>改进历史记录存储机制，确保页面刷新后仍能保留历史记录</li>
+                    <li>优化页面布局，提升用户体验</li>
+                </ul>
+            </li>
+            <!-- 之前的更新日志条目 -->
+            <li class="list-group-item">
+                <h5>2024年9月24日 - 版本 1.1.0</h5>
+                <ul>
+                    <li>实现本地存储，保存用户的输入和格式化结果</li>
+                    <li>优化页面布局和样式</li>
+                </ul>
+            </li>
+            <li class="list-group-item">
+                <h5>2024年9月23日 - 版本 1.0.0</h5>
+                <ul>
+                    <li>初始版本发布</li>
+                    <li>实现基本的字符串格式化功能</li>
+                    <li>添加复制结果和重置功能</li>
+                    <li>添加历史记录功能, 最多保存20条记录</li>
+                    <li>添加历史记录复制功能, 点击历史记录时，将该记录的格式化内容复制到剪贴板</li>
+                    <li>添加格式化空格功能</li>
+                </ul>
             </li>
         </ul>
     </div>
